@@ -139,33 +139,33 @@
              closeButton: true,
             closeOnClick: false
             });
-	map.on("click", "Nexus_fill", (e) => {
-	 const Country = e.features[0].state["CName"];
-	 const Link = e.features[0].state["Link"];
-	 console.log("LINK", Link);
-	 const Analysis = e.features[0].state["Analysis"];
-	 //since the Nexus_fill doesn't have a lat long I use the e of the click to give it coordinates. 
- 	let coordinates = e.lngLat;
-	 while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-	 coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        map.on('mousemove', (e) => {
+        
+          const features = map.queryRenderedFeatures(e.point);
+          //handles if there are no features either before render or after when on places like the oceans.
+          if (features.length === 0 ){
+              map.getCanvas().style.cursor = '';
+              popup.remove();
           }
-
- 	console.log(coordinates);
- 	new mapboxgl.Popup();
- 	popup
-            .setLngLat(coordinates)
-            .setHTML(
-	 "<h4><strong><center>" +
-	 Country +
-	 "</h4></strong></center>" +
-	 "Analysis: " +
-	 Analysis +
-	 "<br>Download the report <a href=" +
-	 Link +
-	 ">here</a></p>"
-            )
-            .addTo(map);
-        });
+          //handles when the state is highlighted, creating a pointer and a popup
+          else if (features[0].state['Nexus'] === 'YES'){
+            map.getCanvas().style.cursor = 'pointer'
+            const Country = features[0].state['CName']
+            const Link = features[0].state['Link']
+	    const Analysis = features[0].state['Analysis']
+	    //const Outcomes = e.features[0].state['Outcomes'];
+	    //const PnP =  e.features[0].state['PnP'];
+	    //const Finance =  e.features[0].state['Finance'];
+            popup.trackPointer().setHTML('<h4><strong><center>'+Country+'</h4></strong></center>'+'Analysis: '+Analysis+'<br>Download the report <a href='+Link + '>here</a></p>').addTo(map)
+          }
+          //handles everything else
+          else{
+              map.getCanvas().style.cursor = ''
+              popup.remove();
+          }
+        
+})
+        })
     </script>
   </body>
 </html>
